@@ -45,7 +45,7 @@ const { assert, expect } = require("chai");
         it("should add a manufacturer", async () => {
           await supplyChain.addManufacturer(manufacturer.address);
           assert.equal(
-            await supplyChain.IsManufacturer(manufacturer.address),
+            await supplyChain.isManufacturer(manufacturer.address),
             true
           );
         });
@@ -61,7 +61,7 @@ const { assert, expect } = require("chai");
             .connect(deployer)
             .addDistributor(distributor.address);
           assert.equal(
-            await supplyChain.IsDistributor(distributor.address),
+            await supplyChain.isDistributor(distributor.address),
             true
           );
         });
@@ -75,7 +75,7 @@ const { assert, expect } = require("chai");
       describe("addPharmacy", () => {
         it("should add a Pharmacy", async () => {
           await supplyChain.connect(deployer).addPharmacy(pharmacy.address);
-          assert.equal(await supplyChain.IsPharmacy(pharmacy.address), true);
+          assert.equal(await supplyChain.isPharmacy(pharmacy.address), true);
         });
         it("should not add a Pharmacy if not called by the owner", async () => {
           await expect(
@@ -87,7 +87,7 @@ const { assert, expect } = require("chai");
       describe("addPatient", () => {
         it("should add a Patient", async () => {
           await supplyChain.connect(deployer).addPatient(patient.address);
-          assert.equal(await supplyChain.IsPatient(patient.address), true);
+          assert.equal(await supplyChain.isPatient(patient.address), true);
         });
         it("should not add a Patient if not called by the owner", async () => {
           await expect(

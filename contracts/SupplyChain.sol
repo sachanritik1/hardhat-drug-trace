@@ -14,6 +14,9 @@ contract SupplyChain {
   mapping(uint256 => ingredientToComposition[])
     public drugIngredientCompositions;
 
+  uint256[] public drugIds;
+  uint256[] public lotIds;
+
   enum DrugState {
     Formulated,
     Approved
@@ -22,7 +25,7 @@ contract SupplyChain {
   enum LotState {
     Manufactured,
     Shipped,
-    Received //by pharmacy
+    Received
   }
 
   struct ingredientToComposition {
@@ -114,13 +117,15 @@ contract SupplyChain {
   function formulateDrug(
     string memory _name,
     ingredientToComposition[] memory _ingredients
-  ) public onlyManufacturer {
+  ) public onlyManufacturer returns (uint256) {
     uint256 id = generateUniqueID();
+    drugIds.push(id);
     for (uint i = 0; i < _ingredients.length; i++) {
       drugIngredientCompositions[id].push(_ingredients[i]);
     }
     drugs[id] = Drug({ id: id, name: _name, state: DrugState.Formulated });
     emit DrugFormulated(id);
+    return id;
   }
 
   function approveDrug(uint256 _drugId) public onlyOwner {
@@ -132,13 +137,14 @@ contract SupplyChain {
     string memory _name,
     uint256 _quantity,
     uint256 _drugId
-  ) public onlyManufacturer {
+  ) public onlyManufacturer returns (uint256) {
     require(
       drugs[_drugId].state == DrugState.Approved,
       "Drug must be approved before manufacturing"
     );
     require(_quantity > 0, "Quantity should be greater than zero");
     uint256 id = generateUniqueID();
+    lotIds.push(id);
     lots[id] = Lot({
       id: id,
       drugId: _drugId,
@@ -150,6 +156,7 @@ contract SupplyChain {
       state: LotState.Manufactured
     });
     emit LotManufactured(id);
+    return id;
   }
 
   function shipLot(uint256 _lotId) public onlyDistributor {
@@ -194,32 +201,12 @@ contract SupplyChain {
     return lots[_lotId];
   }
 
-  function IsManufacturer(address _manufacturer) public view returns (bool) {
-    return isManufacturer[_manufacturer];
+  function getDrugIds() public view returns (uint256[] memory) {
+    return drugIds;
   }
 
-  function IsDistributor(address _distributor) public view returns (bool) {
-    return isDistributor[_distributor];
-  }
-
-  function IsPharmacy(address _pharmacy) public view returns (bool) {
-    return isPharmacy[_pharmacy];
-  }
-
-  function IsPatient(address _patient) public view returns (bool) {
-    return isPatient[_patient];
-  }
-
-  function getLotToPatient(
-    uint256 _lotId
-  ) public view returns (address[] memory) {
-    return lotToPatient[_lotId];
-  }
-
-  function getDrugIngredientCompositions(
-    uint256 _drugId
-  ) public view returns (ingredientToComposition[] memory) {
-    return drugIngredientCompositions[_drugId];
+  function getLotIds() public view returns (uint256[] memory) {
+    return lotIds;
   }
 
   // utility functions
